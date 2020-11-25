@@ -21,7 +21,7 @@ data:
 
       tls_config:
         ca_file: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
-      #bearer_token_file: /var/run/secrets/kubernetes.io/serviceaccount/token
+      bearer_token_file: /var/run/secrets/kubernetes.io/serviceaccount/token
 
       # You can specify the following annotations (on pods):
       #   prometheus.io.scrape: false - don't scrape this pod
