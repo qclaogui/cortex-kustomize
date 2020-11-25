@@ -1,0 +1,13 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: distributor
+spec:
+  ports:
+    - port: 80
+      name: http-metrics
+      targetPort: 80
+    - port: 9095
+      name: grpc-distribut
+      targetPort: 9095

@@ -1,0 +1,113 @@
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  labels:
+    name: ingester
+  name: ingester
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      name: ingester
+  serviceName: ingester
+  template:
+    metadata:
+      labels:
+        name: ingester
+      annotations:
+        prometheus.io.scrape: "true"
+        prometheus.io.port: "80"
+    spec:
+      containers:
+      - name: ingester
+        image: quay.io/cortexproject/cortex:v1.5.0
+        imagePullPolicy: IfNotPresent
+        env:
+          - name: JAEGER_AGENT_HOST
+            value: jaeger-agent-svc
+          - name: JAEGER_AGENT_PORT
+            value: "6831"
+          - name: JAEGER_TAGS
+            value: app=ingester
+          - name: JAEGER_SAMPLER_TYPE
+            value: const
+          - name: JAEGER_SAMPLER_PARAM
+            value: "1"
+        args:
+        - -blocks-storage.backend=s3
+        - -blocks-storage.bucket-store.ignore-deletion-marks-delay=1h
+        - -blocks-storage.bucket-store.sync-dir=/data/tsdb
+        - -blocks-storage.s3.bucket-name=cortex
+        - -blocks-storage.s3.access-key-id=cortex
+        - -blocks-storage.s3.secret-access-key=supersecret
+        - -blocks-storage.s3.endpoint=s3.cortex-k8s.svc.cluster.local:9000
+        - -blocks-storage.s3.insecure=true
+        - -blocks-storage.tsdb.block-ranges-period=2h
+        - -blocks-storage.tsdb.dir=/data/tsdb
+        - -blocks-storage.tsdb.retention-period=96h
+        - -blocks-storage.tsdb.ship-interval=1m
+        - -consul.hostname=consul.cortex-k8s.svc.cluster.local:8500
+        - -distributor.health-check-ingesters=true
+        - -distributor.shard-by-all-labels=true
+        - -distributor.sharding-strategy=shuffle-sharding
+        - -distributor.ingestion-tenant-shard-size=3
+        - -ingester.checkpoint-duration=15m
+        - -ingester.checkpoint-enabled=true
+        - -ingester.chunk-encoding=3
+        - -ingester.heartbeat-period=15s
+        - -ingester.join-after=0s # (prod 30s)
+        - -ingester.max-chunk-age=6h
+        - -ingester.max-chunk-idle=15m
+        - -ingester.max-global-series-per-metric=30000
+        - -ingester.max-global-series-per-user=150000
+        - -ingester.max-samples-per-query=1000000
+        - -ingester.max-series-per-metric=0
+        - -ingester.max-series-per-query=100000
+        - -ingester.max-series-per-user=0
+        - -ingester.max-stale-chunk-idle=5m
+        - -ingester.max-transfer-retries=60
+        - -ingester.num-tokens=512
+        - -ingester.recover-from-wal=true
+        - -ingester.retain-period=15m
+        - -ingester.tokens-file-path=/wal_data/tokens
+        - -ingester.wal-dir=/wal_data
+        - -ingester.wal-enabled=true
+        - -log.level=info
+        - -s3.url=s3://cortex:supersecret@s3.cortex-k8s.svc.cluster.local:9000/cortex
+        - -s3.force-path-style=true
+        - -server.grpc-max-concurrent-streams=100000
+        - -store.engine=blocks
+        - -target=ingester
+        readinessProbe:
+          httpGet:
+            path: /ready
+            port: 80
+          initialDelaySeconds: 15
+          timeoutSeconds: 1
+        ports:
+        - containerPort: 80
+          name: http-metrics
+        - containerPort: 9095
+          name: grpc-ingester
+        volumeMounts:
+        - mountPath: /wal_data
+          name: ingester-pvc
+      terminationGracePeriodSeconds: 30 #4800
+      volumes:
+      - name: ingester-pvc
+        persistentVolumeClaim:
+          claimName: ingester-pvc
+  updateStrategy:
+    type: RollingUpdate
+  volumeClaimTemplates:
+  - apiVersion: v1
+    kind: PersistentVolumeClaim
+    metadata:
+      name: ingester-pvc
+    spec:
+      accessModes:
+      - ReadWriteOnce
+      resources:
+        requests:
+          storage: 10Gi

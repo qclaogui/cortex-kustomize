@@ -1,0 +1,58 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: distributor
+spec:
+  replicas: 2
+  template:
+    metadata:
+      annotations:
+        prometheus.io.scrape: "true"
+        prometheus.io.port: "80"
+    spec:
+      containers:
+      - name: distributor
+        imagePullPolicy: IfNotPresent
+        env:
+          - name: JAEGER_AGENT_HOST
+            value: jaeger-agent-svc
+          - name: JAEGER_AGENT_PORT
+            value: "6831"
+          - name: JAEGER_TAGS
+            value: app=distributor
+          - name: JAEGER_SAMPLER_TYPE
+            value: const
+          - name: JAEGER_SAMPLER_PARAM
+            value: "1"
+        args:
+        - -consul.hostname=consul.cortex-k8s.svc.cluster.local:8500
+        - -distributor.ha-tracker.enable=true # (HA https://cortexmetrics.io/docs/guides/ha-pair-handling/)
+        - -distributor.ha-tracker.replica=prometheus_replica
+        - -distributor.ha-tracker.enable-for-all-users=true # Setting the limits configuration to accept samples
+        - -distributor.ha-tracker.store=consul
+        - -distributor.ha-tracker.consul.hostname=consul.cortex-k8s.svc.cluster.local:8500
+        - -distributor.health-check-ingesters=true
+        - -distributor.ingestion-burst-size=200000
+        - -distributor.ingestion-rate-limit=10000
+        - -distributor.ingestion-rate-limit-strategy=global
+        - -distributor.remote-timeout=20s
+        - -distributor.ring.consul.hostname=consul.cortex-k8s.svc.cluster.local:8500
+        - -distributor.shard-by-all-labels=true # (need both set distributor, querier)
+        - -server.grpc.keepalive.max-connection-age=2m
+        - -server.grpc.keepalive.max-connection-age-grace=5m
+        - -server.grpc.keepalive.max-connection-idle=1m
+        - -store.engine=blocks
+        - -target=distributor
+        - -validation.reject-old-samples=true
+        - -validation.reject-old-samples.max-age=12h
+        readinessProbe:
+          httpGet:
+            port: 80
+            path: /ready
+          timeoutSeconds: 1
+        ports:
+        - containerPort: 80
+          name: http-metrics
+        - containerPort: 9095
+          name: grpc-distribut

@@ -1,0 +1,68 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: jaeger-agent
+spec:
+  selector:
+    matchLabels:
+      app: jaeger-agent
+  replicas: 1
+  template:
+    metadata:
+      annotations:
+        sidecar.istio.io/inject: "false"
+      labels:
+        app: jaeger-agent
+    spec:
+      containers:
+        - name: jaeger-agent
+          imagePullPolicy: IfNotPresent
+          image: uhub.service.ucloud.cn/bluecity/jaeger-agent:1.19.2
+          args:
+            - --reporter.grpc.host-port=stack-monitoring-apm-http.im-eck:14250
+            - --agent.tags=authorization=Bearer DT0J577br5PZY60g74IX4xfI
+          ports:
+            - name: http-metrics
+              containerPort: 14271
+              protocol: TCP
+            - name: udp-compact
+              containerPort: 6831
+              protocol: UDP
+            - name: udp-binary
+              containerPort: 6832
+              protocol: UDP
+            - name: http-config
+              containerPort: 5778
+              protocol: TCP
+            - name: udp-zk-compact
+              containerPort: 5775
+              protocol: UDP
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: jaeger-agent-svc
+  annotations:
+    prometheus.io/path: /metrics
+    prometheus.io/port: "14271"
+  labels:
+    app: jaeger-agent
+spec:
+  ports:
+    - name: http-metrics
+      port: 14271
+      protocol: TCP
+    - name: http-config
+      port: 5778
+      protocol: TCP
+    - name: udp-compact
+      port: 6831
+      protocol: UDP
+    - name: udp-binary
+      port: 6832
+      protocol: UDP
+    - name: udp-zk-compact
+      port: 5775
+      protocol: UDP
+  selector:
+    app: jaeger-agent

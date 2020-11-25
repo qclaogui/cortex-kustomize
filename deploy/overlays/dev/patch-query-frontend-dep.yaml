@@ -1,0 +1,40 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: query-frontend
+spec:
+  replicas: 2
+  template:
+    metadata:
+      annotations:
+        prometheus.io.scrape: "true"
+        prometheus.io.port: "80"
+    spec:
+      containers:
+      - name: query-frontend
+        image: quay.io/cortexproject/cortex:v1.5.0
+        imagePullPolicy: IfNotPresent
+        env:
+          - name: JAEGER_AGENT_HOST
+            value: jaeger-agent-svc
+          - name: JAEGER_AGENT_PORT
+            value: "6831"
+          - name: JAEGER_TAGS
+            value: app=query-frontend
+          - name: JAEGER_SAMPLER_TYPE
+            value: const
+          - name: JAEGER_SAMPLER_PARAM
+            value: "1"
+        args:
+        - -target=query-frontend
+        - -log.level=warn
+        - -frontend.max-queriers-per-tenant=1 # https://cortexmetrics.io/docs/guides/shuffle-sharding/#query-frontend-shuffle-sharding
+        - -store.engine=blocks
+        - -server.http-listen-port=80
+        - -server.grpc-listen-port=9095
+        ports:
+        - containerPort: 80
+          name: http-metrics
+        - containerPort: 9095
+          name: grpc-frontend

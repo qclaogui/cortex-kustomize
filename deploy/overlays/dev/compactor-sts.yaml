@@ -1,0 +1,84 @@
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  labels:
+    name: compactor
+  name: compactor
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      name: compactor
+  serviceName: compactor
+  template:
+    metadata:
+      labels:
+        name: compactor
+      annotations:
+        prometheus.io.scrape: "true"
+        prometheus.io.port: "80"
+    spec:
+      containers:
+      - name: compactor
+        image: quay.io/cortexproject/cortex:v1.5.0
+        imagePullPolicy: IfNotPresent
+        env:
+          - name: JAEGER_AGENT_HOST
+            value: jaeger-agent-svc
+          - name: JAEGER_AGENT_PORT
+            value: "6831"
+          - name: JAEGER_TAGS
+            value: app=compactor
+          - name: JAEGER_SAMPLER_TYPE
+            value: const
+          - name: JAEGER_SAMPLER_PARAM
+            value: "1"
+        args:
+        - -blocks-storage.backend=s3
+        - -blocks-storage.bucket-store.ignore-deletion-marks-delay=1h
+        - -blocks-storage.bucket-store.sync-dir=/data/tsdb
+        - -blocks-storage.s3.bucket-name=cortex
+        - -blocks-storage.s3.access-key-id=cortex
+        - -blocks-storage.s3.secret-access-key=supersecret
+        - -blocks-storage.s3.endpoint=s3.cortex-k8s.svc.cluster.local:9000
+        - -blocks-storage.s3.insecure=true
+        - -blocks-storage.tsdb.block-ranges-period=2h
+        - -blocks-storage.tsdb.dir=/data/tsdb
+        - -blocks-storage.tsdb.retention-period=96h
+        - -blocks-storage.tsdb.ship-interval=1m
+        - -consul.hostname=consul.cortex-k8s.svc.cluster.local:8500
+        - -compactor.sharding-enabled=true
+        - -compactor.ring.consul.hostname=consul.cortex-k8s.svc.cluster.local:8500
+        - -log.level=info
+        - -server.grpc-max-concurrent-streams=100000
+        - -store.engine=blocks
+        - -target=compactor
+        readinessProbe:
+          httpGet:
+            port: 80
+            path: /ready
+        ports:
+          - name: http-metrics
+            containerPort: 80
+            protocol: TCP
+        volumeMounts:
+        - mountPath: /data
+          name: compactor-pvc
+      volumes:
+      - name: compactor-pvc
+        persistentVolumeClaim:
+          claimName: compactor-pvc
+  updateStrategy:
+    type: RollingUpdate
+  volumeClaimTemplates:
+  - apiVersion: v1
+    kind: PersistentVolumeClaim
+    metadata:
+      name: compactor-pvc
+    spec:
+      accessModes:
+      - ReadWriteOnce
+      resources:
+        requests:
+          storage: 10Gi

@@ -1,0 +1,63 @@
+# ----------------------------------------------------
+# apiVersion and kind of Kustomization
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: cortex-k8s
+
+commonLabels:
+  team: team-infra
+
+commonAnnotations:
+  co.elastic.logs/enabled: "true"
+
+bases:
+- ../../base
+
+resources:
+- jaeger-agent.yaml
+- nginx-config.yaml
+- ingester-sts.yaml
+- store-gateway-sts.yaml
+- store-gateway-svc.yaml
+- compactor-sts.yaml
+- patch-s3-pvc.yaml
+
+patchesStrategicMerge:
+- patch-distributor-dep.yaml
+- patch-distributor-svc.yaml
+- patch-querier-dep.yaml
+- patch-querier-svc.yaml
+- patch-retrieval-dep.yaml
+- patch-retrieval-svc.yaml
+- patch-retrieval-config.yaml
+- patch-query-frontend-dep.yaml
+- patch-query-frontend-svc.yaml
+- patch-alertmanager-dep.yaml
+- patch-alertmanager-svc.yaml
+- patch-ruler-dep.yaml
+- patch-ruler-svc.yaml
+- patch-ingester-svc.yaml
+- patch-s3-dep.yaml
+- patch-s3-svc.yaml
+
+images:
+- name: quay.io/cortexproject/cortex
+  newName: uhub.service.ucloud.cn/bluecity/cortex
+  newTag: "v1.5.0"
+- name: prom/prometheus
+  newName: uhub.service.ucloud.cn/bluecity/prometheus
+  newTag: "v2.22.2"
+- name: uhub.service.ucloud.cn/bluecity/jaeger-agent
+  newTag: "1.20.0"
+- name: consul
+  newName: uhub.service.ucloud.cn/bluecity/consul
+  newTag: "1.5.3"
+- name: minio/minio
+  newTag: RELEASE.2020-11-19T23-48-16Z
+
+configMapGenerator:
+- name: cortex-rules-cm
+  files:
+  - configs/prom_rules.yaml
+#  - configs/prom_alerts.yaml

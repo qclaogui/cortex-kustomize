@@ -1,0 +1,80 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: querier
+spec:
+  replicas: 3
+  template:
+    metadata:
+      annotations:
+        prometheus.io.scrape: "true"
+        prometheus.io.port: "80"
+    spec:
+      containers:
+      - name: querier
+        image: quay.io/cortexproject/cortex:v1.5.0
+        imagePullPolicy: IfNotPresent
+        env:
+          - name: JAEGER_AGENT_HOST
+            value: jaeger-agent-svc
+          - name: JAEGER_AGENT_PORT
+            value: "6831"
+          - name: JAEGER_TAGS
+            value: app=querier
+          - name: JAEGER_SAMPLER_TYPE
+            value: const
+          - name: JAEGER_SAMPLER_PARAM
+            value: "1"
+        args:
+        - -blocks-storage.bucket-store.metadata-cache.backend=memcached
+        - -blocks-storage.bucket-store.metadata-cache.memcached.addresses=memcached.cortex-k8s.svc.cluster.local:11211
+        - -blocks-storage.bucket-store.ignore-deletion-marks-delay=1h
+        - -blocks-storage.bucket-store.sync-dir=/data/tsdb
+        - -blocks-storage.backend=s3
+        - -blocks-storage.s3.bucket-name=cortex
+        - -blocks-storage.s3.access-key-id=cortex
+        - -blocks-storage.s3.secret-access-key=supersecret
+        - -blocks-storage.s3.endpoint=s3.cortex-k8s.svc.cluster.local:9000
+        - -blocks-storage.s3.insecure=true
+        - -blocks-storage.tsdb.block-ranges-period=2h
+        - -blocks-storage.tsdb.dir=/data/tsdb
+        - -blocks-storage.tsdb.retention-period=96h
+        - -blocks-storage.tsdb.ship-interval=1m
+        - -consul.hostname=consul.cortex-k8s.svc.cluster.local:8500
+        - -distributor.health-check-ingesters=true
+        - -distributor.shard-by-all-labels=true
+        - -log.level=info
+        - -querier.frontend-address=query-frontend.cortex-k8s.svc.cluster.local:9095
+        - -querier.frontend-client.grpc-max-send-msg-size=104857600
+        - -querier.max-concurrent=8
+        - -querier.query-store-after=12h
+        - -querier.query-ingesters-within=13h
+        - -querier.worker-parallelism=4
+        - -querier.batch-iterators=true # add(qc)
+        - -querier.ingester-streaming=true # add(qc)
+        - -s3.url=s3://cortex:supersecret@s3.cortex-k8s.svc.cluster.local:9000/cortex
+        - -s3.force-path-style=true
+        - -server.http-listen-port=80
+        - -server.http-write-timeout=1m
+        - -store-gateway.sharding-enabled=true
+        - -store-gateway.sharding-strategy=shuffle-sharding
+        - -store-gateway.tenant-shard-size=1
+        - -store-gateway.sharding-ring.prefix=
+        - -store-gateway.sharding-ring.store=consul
+        - -store-gateway.sharding-ring.consul.hostname=consul.cortex-k8s.svc.cluster.local:8500
+        - -store.cardinality-limit=1000000
+        - -store.engine=blocks
+        - -store.max-query-length=768h
+        - -target=querier
+        readinessProbe:
+          httpGet:
+            port: 80
+            path: /ready
+          initialDelaySeconds: 15
+          timeoutSeconds: 1
+        ports:
+        - containerPort: 80
+          name: http-metrics
+        - containerPort: 9095
+          name: grpc-querier

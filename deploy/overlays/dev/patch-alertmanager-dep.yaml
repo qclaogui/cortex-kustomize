@@ -1,0 +1,43 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: alertmanager
+spec:
+  replicas: 1
+  template:
+    spec:
+      containers:
+      - name: alertmanager
+        image: quay.io/cortexproject/cortex:v1.5.0
+        imagePullPolicy: IfNotPresent
+        env:
+        - name: JAEGER_AGENT_HOST
+          value: jaeger-agent-svc
+        - name: JAEGER_AGENT_PORT
+          value: "6831"
+        - name: JAEGER_TAGS
+          value: app=alertmanager
+        - name: JAEGER_SAMPLER_TYPE
+          value: const
+        - name: JAEGER_SAMPLER_PARAM
+          value: "1"
+        args:
+        - -alertmanager.web.external-url=/api/prom/alertmanager
+        - -alertmanager.storage.type=s3
+        - -alertmanager.storage.s3.url=s3://cortex:supersecret@s3.cortex-k8s.svc.cluster.local:9000/cortex
+        - -alertmanager.storage.s3.force-path-style=true
+        - -experimental.alertmanager.enable-api=true
+        - -log.level=info
+        - -server.http-listen-port=80
+        - -store.engine=blocks
+        - -target=alertmanager
+        readinessProbe:
+          httpGet:
+            port: 80
+            path: /ready
+          initialDelaySeconds: 15
+          timeoutSeconds: 1
+        ports:
+        - containerPort: 80
+          name: http-metrics

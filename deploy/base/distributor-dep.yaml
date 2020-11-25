@@ -1,0 +1,27 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: distributor
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: distributor
+  template:
+    metadata:
+      labels:
+        name: distributor
+    spec:
+      containers:
+      - name: distributor
+        image: quay.io/cortexproject/cortex:v1.5.0
+        imagePullPolicy: IfNotPresent
+        args:
+        - -target=distributor
+        - -log.level=info
+        - -server.http-listen-port=80
+        - -consul.hostname=consul.default.svc.cluster.local:8500
+        - -distributor.ha-tracker.replica=prometheus_replica
+        ports:
+        - containerPort: 80
