@@ -1,0 +1,11 @@
+# The default namespace to be applied to resources. This field is not used to
+# enforce or lock down the deployment to a specific namespace, but instead
+# provide the default value of the namespace field if one is not specified
+# in the manifests.
+# Default: default
+defaultNamespace: fleet-kustomize-example
+
+kustomize:
+  # Use a custom folder for kustomize resources. This folder must contain
+  # a kustomization.yaml file.
+  dir: ./overlays/dev
