@@ -11,7 +11,6 @@ spec:
         prometheus.io/path: /minio/prometheus/metrics
         prometheus.io/port: "9000"
         prometheus.io.scrape: "true"
-        prometheus.io.scheme: http
     spec:
       containers:
       - name: minio
