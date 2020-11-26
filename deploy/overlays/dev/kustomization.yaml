@@ -49,7 +49,7 @@ images:
   newName: uhub.service.ucloud.cn/bluecity/prometheus
   newTag: "v2.22.2"
 - name: uhub.service.ucloud.cn/bluecity/jaeger-agent
-  newTag: "1.20.0"
+  newTag: "1.21.0"
 - name: consul
   newName: uhub.service.ucloud.cn/bluecity/consul
   newTag: "1.5.3"
