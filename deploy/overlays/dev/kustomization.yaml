@@ -40,6 +40,7 @@ patchesStrategicMerge:
 - patch-ingester-svc.yaml
 - patch-s3-dep.yaml
 - patch-s3-svc.yaml
+- patch-consul-dep.yaml
 
 images:
 - name: quay.io/cortexproject/cortex

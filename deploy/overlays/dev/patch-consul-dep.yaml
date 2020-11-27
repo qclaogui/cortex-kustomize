@@ -1,0 +1,31 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: consul
+spec:
+  replicas: 1
+  template:
+    spec:
+      containers:
+      - name: consul
+        image: consul:1.5.3
+        args:
+        - agent
+        - -ui
+        - -server
+        - -bind=127.0.0.1
+        - -client=0.0.0.0
+        - -bootstrap
+        env:
+        - name: CHECKPOINT_DISABLE
+          value: "1"
+        ports:
+        - name: server-noscrape
+          containerPort: 8300
+        - name: serf-noscrape
+          containerPort: 8301
+        - name: client-noscrape
+          containerPort: 8400
+        - name: http-noscrape
+          containerPort: 8500
