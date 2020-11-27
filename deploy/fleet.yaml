@@ -9,3 +9,25 @@ kustomize:
   # Use a custom folder for kustomize resources. This folder must contain
   # a kustomization.yaml file.
   dir: ./overlays/dev
+
+
+diff:
+  comparePatches:
+  - apiVersion: apps/v1
+    kind: StatefulSet
+    name: compactor
+    namespace: cortex-k8s
+    operations:
+    - { "op": "remove", "path": "/spec/volumeClaimTemplates/0" }
+  - apiVersion: apps/v1
+    kind: StatefulSet
+    name: ingester
+    namespace: cortex-k8s
+    operations:
+    - {"op":"remove", "path":"/spec/volumeClaimTemplates/0"}
+  - apiVersion: apps/v1
+    kind: StatefulSet
+    name: store-gateway
+    namespace: cortex-k8s
+    operations:
+    - {"op":"remove", "path":"/spec/volumeClaimTemplates/0"}

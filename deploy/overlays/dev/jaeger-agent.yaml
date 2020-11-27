@@ -19,8 +19,10 @@ spec:
           imagePullPolicy: IfNotPresent
           image: uhub.service.ucloud.cn/bluecity/jaeger-agent:1.19.2
           args:
-            - --reporter.grpc.host-port=stack-monitoring-apm-http.im-eck:14250
-            - --agent.tags=authorization=Bearer DT0J577br5PZY60g74IX4xfI
+            - --reporter.grpc.host-port=apm-grpc.svc.bks-dev.ourbluecity.com:443
+            - --agent.tags=authorization=Bearer vzvz59U98zd80wYTX063Zg0j
+            - --reporter.grpc.tls.enabled=true
+            - --reporter.grpc.tls.skip-host-verify=true
           ports:
             - name: http-metrics
               containerPort: 14271

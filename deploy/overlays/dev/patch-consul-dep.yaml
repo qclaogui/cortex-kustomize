@@ -14,12 +14,16 @@ spec:
         - agent
         - -ui
         - -server
-        - -bind=127.0.0.1
+        - -bind=$(POD_IP)
         - -client=0.0.0.0
         - -bootstrap
         env:
         - name: CHECKPOINT_DISABLE
           value: "1"
+        - name: POD_IP
+          valueFrom:
+            fieldRef:
+              fieldPath: status.podIP
         ports:
         - name: server-noscrape
           containerPort: 8300

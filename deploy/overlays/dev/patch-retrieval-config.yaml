@@ -8,11 +8,12 @@ data:
     global:
       scrape_interval: 10s # By default, scrape targets every 15 seconds.
       external_labels:
-        cluster: cortex-retrieval
+        cluster: prom-cortex
         prometheus_replica: replica1
 
     remote_write:
       - url: http://nginx.cortex-k8s.svc.cluster.local:80/api/prom/push
+        name: prom-cortex
 
     scrape_configs:
     - job_name: 'kubernetes-pods'

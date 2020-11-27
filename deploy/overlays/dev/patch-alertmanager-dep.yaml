@@ -22,6 +22,10 @@ spec:
           value: const
         - name: JAEGER_SAMPLER_PARAM
           value: "1"
+        - name: POD_IP
+          valueFrom:
+            fieldRef:
+              fieldPath: status.podIP
         args:
         - -alertmanager.web.external-url=/api/prom/alertmanager
         - -alertmanager.storage.type=s3
@@ -29,6 +33,7 @@ spec:
         - -alertmanager.storage.s3.force-path-style=true
         - -experimental.alertmanager.enable-api=true
         - -log.level=info
+        - -cluster.listen-address=$(POD_IP):9094
         - -server.http-listen-port=80
         - -store.engine=blocks
         - -target=alertmanager

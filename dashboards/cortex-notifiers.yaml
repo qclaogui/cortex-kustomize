@@ -1,0 +1,22 @@
+# https://github.com/grafana/helm-charts/blob/main/charts/grafana/README.md#sidecar-for-datasources
+apiVersion: v1
+kind: Secret
+metadata:
+  name: wangweifeng-feishu
+  namespace: bluecity-notifiers
+  labels:
+    grafana_notifier: "1"
+type: Opaque
+stringData:
+  notifiers.yaml: |-
+    notifiers:
+    - name: feishu-wangweifeng
+      type: webhook
+      uid: feishu-wangweifeng
+      org_id: 1
+      send_reminder: true
+      frequency: 1h
+      disable_resolve_message: false
+      is_default: false
+      settings:
+        url: http://webhook.svc.bks-dev.ourbluecity.com/feishu/2577069ae38a47298146169b5a7e696e

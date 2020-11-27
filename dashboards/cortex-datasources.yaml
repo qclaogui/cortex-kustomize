@@ -1,0 +1,19 @@
+# https://github.com/grafana/helm-charts/blob/main/charts/grafana/README.md#sidecar-for-datasources
+apiVersion: v1
+kind: Secret
+metadata:
+  name: cortex-prometheus
+  namespace: bluecity-datasources
+  labels:
+    grafana_datasource: "1"
+type: Opaque
+stringData:
+  datasource.yaml: |-
+    # config file version
+    apiVersion: 1
+    datasources:
+    - name: Prometheus
+      type: prometheus
+      url: http://nginx.cortex-k8s/api/prom
+      access: proxy
+      editable: false

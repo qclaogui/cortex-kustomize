@@ -59,7 +59,7 @@ spec:
         - -ingester.join-after=0s # (prod 30s)
         - -ingester.max-chunk-age=6h
         - -ingester.max-chunk-idle=15m
-        - -ingester.max-global-series-per-metric=30000
+        - -ingester.max-global-series-per-metric=50000
         - -ingester.max-global-series-per-user=150000
         - -ingester.max-samples-per-query=1000000
         - -ingester.max-series-per-metric=0
