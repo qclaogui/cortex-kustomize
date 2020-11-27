@@ -48,7 +48,7 @@ images:
   newTag: "v1.5.0"
 - name: prom/prometheus
   newName: uhub.service.ucloud.cn/bluecity/prometheus
-  newTag: "v2.22.2"
+  newTag: "v2.23.0"
 - name: uhub.service.ucloud.cn/bluecity/jaeger-agent
   newTag: "1.21.0"
 - name: consul
