@@ -16,7 +16,7 @@ spec:
       - name: minio
         image: minio/minio
         # Create the "cortex" bucket before starting minio server.
-        command: [ "sh", "-c", "mkdir /storage/cortex && minio server /storage"]
+        command: [ "sh", "-c", "mkdir /storage/cortex-tsdb && mkdir /storage/cortex-rules && minio server /storage"]
         env:
         - name: MINIO_PROMETHEUS_AUTH_TYPE
           value: "public"

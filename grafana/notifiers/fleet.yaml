@@ -1,0 +1,9 @@
+namespace: bluecity-notifiers
+
+diff:
+  comparePatches:
+  - apiVersion: v1
+    kind: Secret
+    name: wangweifeng-feishu
+    operations:
+    - {"op":"remove", "path":"/stringData/notifiers.yaml"}

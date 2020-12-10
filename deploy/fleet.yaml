@@ -3,7 +3,7 @@
 # provide the default value of the namespace field if one is not specified
 # in the manifests.
 # Default: default
-defaultNamespace: fleet-kustomize-example
+defaultNamespace: cortex-k8s
 
 kustomize:
   # Use a custom folder for kustomize resources. This folder must contain

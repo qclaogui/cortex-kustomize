@@ -29,7 +29,7 @@ spec:
         args:
         - -alertmanager.web.external-url=/api/prom/alertmanager
         - -alertmanager.storage.type=s3
-        - -alertmanager.storage.s3.url=s3://cortex:supersecret@s3.cortex-k8s.svc.cluster.local:9000/cortex
+        - -alertmanager.storage.s3.url=s3://cortex:supersecret@s3.cortex-k8s.svc.cluster.local:9000/cortex-rules
         - -alertmanager.storage.s3.force-path-style=true
         - -experimental.alertmanager.enable-api=true
         - -log.level=info

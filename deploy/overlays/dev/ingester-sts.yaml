@@ -49,11 +49,10 @@ spec:
         - -blocks-storage.tsdb.ship-interval=1m
         - -consul.hostname=consul.cortex-k8s.svc.cluster.local:8500
         - -distributor.health-check-ingesters=true
+        - -distributor.replication-factor=3
         - -distributor.shard-by-all-labels=true
         - -distributor.sharding-strategy=shuffle-sharding
         - -distributor.ingestion-tenant-shard-size=3
-        - -ingester.checkpoint-duration=15m
-        - -ingester.checkpoint-enabled=true
         - -ingester.chunk-encoding=3
         - -ingester.heartbeat-period=15s
         - -ingester.join-after=0s # (prod 30s)
@@ -68,17 +67,19 @@ spec:
         - -ingester.max-stale-chunk-idle=5m
         - -ingester.max-transfer-retries=60
         - -ingester.num-tokens=512
-        - -ingester.recover-from-wal=true
         - -ingester.retain-period=15m
-        - -ingester.tokens-file-path=/wal_data/tokens
-        - -ingester.wal-dir=/wal_data
-        - -ingester.wal-enabled=true
-        - -log.level=info
         - -s3.url=s3://cortex:supersecret@s3.cortex-k8s.svc.cluster.local:9000/cortex
         - -s3.force-path-style=true
         - -server.grpc-max-concurrent-streams=100000
         - -store.engine=blocks
         - -target=ingester
+        - -log.level=info
+        - -ingester.checkpoint-duration=15m
+        - -ingester.checkpoint-enabled=true
+        - -ingester.recover-from-wal=true
+        - -ingester.tokens-file-path=/wal_data/tokens
+        - -ingester.wal-dir=/wal_data
+        - -ingester.wal-enabled=true
         readinessProbe:
           httpGet:
             path: /ready

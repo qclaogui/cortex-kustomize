@@ -73,10 +73,5 @@ data:
         location ~ /ruler/ring {
           proxy_pass      http://ruler.cortex-k8s.svc.cluster.local$request_uri;
         }
-
-        # Config Config
-        location ~ /api/prom/configs/.* {
-          proxy_pass      http://configs.cortex-k8s.svc.cluster.local$request_uri;
-        }
       }
     }

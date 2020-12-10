@@ -27,29 +27,30 @@ spec:
           - name: JAEGER_SAMPLER_PARAM
             value: "1"
         args:
-        - -blocks-storage.bucket-store.metadata-cache.backend=memcached
-        - -blocks-storage.bucket-store.metadata-cache.memcached.addresses=memcached.cortex-k8s.svc.cluster.local:11211
+        - -blocks-storage.backend=s3
         - -blocks-storage.bucket-store.ignore-deletion-marks-delay=1h
         - -blocks-storage.bucket-store.sync-dir=/data/tsdb
-        - -blocks-storage.backend=s3
         - -blocks-storage.s3.bucket-name=cortex
         - -blocks-storage.s3.access-key-id=cortex
         - -blocks-storage.s3.secret-access-key=supersecret
         - -blocks-storage.s3.endpoint=s3.cortex-k8s.svc.cluster.local:9000
         - -blocks-storage.s3.insecure=true
+        - -blocks-storage.bucket-store.metadata-cache.backend=memcached
+        - -blocks-storage.bucket-store.metadata-cache.memcached.addresses=memcached.cortex-k8s.svc.cluster.local:11211
         - -blocks-storage.tsdb.block-ranges-period=2h
         - -blocks-storage.tsdb.dir=/data/tsdb
         - -blocks-storage.tsdb.retention-period=96h
         - -blocks-storage.tsdb.ship-interval=1m
         - -consul.hostname=consul.cortex-k8s.svc.cluster.local:8500
         - -distributor.health-check-ingesters=true
+        - -distributor.replication-factor=3
         - -distributor.shard-by-all-labels=true
         - -log.level=info
         - -querier.frontend-address=query-frontend.cortex-k8s.svc.cluster.local:9095
         - -querier.frontend-client.grpc-max-send-msg-size=104857600
         - -querier.max-concurrent=8
-        - -querier.query-store-after=12h
         - -querier.query-ingesters-within=13h
+        - -querier.query-store-after=12h
         - -querier.worker-parallelism=4
         - -querier.batch-iterators=true # add(qc)
         - -querier.ingester-streaming=true # add(qc)

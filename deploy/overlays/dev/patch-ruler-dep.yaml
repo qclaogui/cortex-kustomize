@@ -42,7 +42,7 @@ spec:
 #        - -ruler.storage.type=local
 #        - -ruler.storage.local.directory=/tmp/cortex/rules
         - -ruler.storage.type=s3
-        - -ruler.storage.s3.url=s3://cortex:supersecret@s3.cortex-k8s.svc.cluster.local:9000/cortex
+        - -ruler.storage.s3.url=s3://cortex:supersecret@s3.cortex-k8s.svc.cluster.local:9000/cortex-rules
         - -ruler.storage.s3.force-path-style=true
         - -ruler.storage.s3.insecure=true
         - -experimental.ruler.enable-api=true

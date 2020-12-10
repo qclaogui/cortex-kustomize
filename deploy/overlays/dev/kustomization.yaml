@@ -45,7 +45,7 @@ patchesStrategicMerge:
 images:
 - name: quay.io/cortexproject/cortex
   newName: uhub.service.ucloud.cn/bluecity/cortex
-  newTag: "v1.5.0"
+  newTag: "v1.6.0-rc.0"
 - name: prom/prometheus
   newName: uhub.service.ucloud.cn/bluecity/prometheus
   newTag: "v2.23.0"
@@ -61,4 +61,4 @@ configMapGenerator:
 - name: cortex-rules-cm
   files:
   - configs/prom_rules.yaml
-#  - configs/prom_alerts.yaml
+  - configs/prom_alerts.yaml
