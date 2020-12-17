@@ -1,9 +1,0 @@
-namespace: bluecity-datasources
-
-diff:
-  comparePatches:
-  - apiVersion: v1
-    kind: Secret
-    name: cortex-prometheus
-    operations:
-    - {"op":"remove", "path":"/stringData/datasource.yaml"}
