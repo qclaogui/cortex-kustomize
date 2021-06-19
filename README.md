@@ -60,15 +60,15 @@ This is an example of monitoring Cortex by adding `prometheus` and `grafana` usi
 
 File structure:
 ```shell
-   └── deploy
-       └── overlays
-           └── dev
-               ├── add-grafana-dep.yaml
-               ├── add-grafana-svc.yaml
-               ├── add-retrieval-dep.yaml
-               ├── add-retrieval-svc.yaml
-               ├── kustomization.yaml
-               └── patch-nginx-svc.yaml
+└── deploy
+   └── overlays
+       └── dev
+           ├── add-grafana-dep.yaml
+           ├── add-grafana-svc.yaml
+           ├── add-retrieval-dep.yaml
+           ├── add-retrieval-svc.yaml
+           ├── kustomization.yaml
+           └── patch-nginx-svc.yaml
 
 ```
 
