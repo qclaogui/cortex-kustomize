@@ -5,13 +5,6 @@
 [Kustomize](https://kustomize.io) is a CNCF project that is a part of Kubernetes.  It's included in
 the `kubectl` in order to allow users to customize their configurations without introducing templates.
 
-### Generate customized YAML with:
-
-`kustomize build deploy/base/blocks > deploy/base/blocks/deploy.yaml`
-
-### The YAML can be directly applied to a cluster:
-
-`kustomize build deploy/base/blocks | kubectl apply -f -`
 
 ## Usage
 
@@ -33,7 +26,7 @@ This is an example of monitoring Cortex by adding `prometheus` and `grafana` usi
 
    `mkdir -p deploy/overlays/dev`
 
-2) Create `kustomization.yaml`
+2) Create `kustomization.yaml` (note that this is not the complete file):
 
     ```yaml
    apiVersion: kustomize.config.k8s.io/v1beta1
