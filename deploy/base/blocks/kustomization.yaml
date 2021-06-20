@@ -14,7 +14,6 @@ resources:
 - consul-headless-svc.yaml
 - distributor-dep.yaml
 - distributor-svc.yaml
-- distributor-headless-svc.yaml
 - ingester-sts.yaml
 - ingester-headless-svc.yaml
 - memcached-sts.yaml
