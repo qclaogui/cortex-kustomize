@@ -38,7 +38,7 @@ resources:
 
 images:
 - name: quay.io/cortexproject/cortex
-  newTag: v1.9.0
+  newTag: v1.10.0
 - name: consul
   newTag: 1.9.6
 - name: minio/minio
