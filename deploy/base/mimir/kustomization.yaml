@@ -1,0 +1,86 @@
+# ----------------------------------------------------
+# apiVersion and kind of Kustomization
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+resources:
+# Alertmanager
+- alertmanager-sts.yaml
+- alertmanager-headless-svc.yaml
+- alertmanager-svc.yaml
+
+# Compactor
+- compactor-sts.yaml
+- compactor-svc.yaml
+
+# Distributor
+- distributor-dep.yaml
+- distributor-svc.yaml
+
+# Ingester
+- ingester-sts.yaml
+- ingester-headless-svc.yaml
+- ingester-svc.yaml
+
+# Querier
+- querier-dep.yaml
+- querier-svc.yaml
+
+# Query-Frontend
+- query-frontend-dep.yaml
+- query-frontend-svc.yaml
+
+# Query-Scheduler
+- query-scheduler-dep.yaml
+- query-scheduler-headless-svc.yaml
+- query-scheduler-svc.yaml
+
+# Ruler
+- ruler-dep.yaml
+- ruler-svc.yaml
+
+# Store-Gateway
+- store-gateway-sts.yaml
+- store-gateway-headless-svc.yaml
+- store-gateway-svc.yaml
+
+- gossip-ring-headless-svc.yaml
+
+- minio-s3-dep.yaml
+- minio-s3-svc.yaml
+- nginx-dep.yaml
+- nginx-svc.yaml
+
+images:
+- name: grafana/mimir
+  newTag: 2.9.0
+- name: minio/minio
+  newTag: RELEASE.2023-07-21T21-12-44Z
+- name: nginx
+  newName: nginxinc/nginx-unprivileged
+  newTag: 1.25-alpine
+
+secretGenerator:
+- name: mimir-config
+  files:
+  - configs/mimir.yaml
+  - configs/alertmanager-fallback-config.yaml
+
+configMapGenerator:
+- name: runtime-config
+  files:
+  - configs/runtime.yaml
+
+- name: nginx-templates
+  files:
+  - configs/nginx/nginx.conf.template
+  - configs/nginx/gateway_mimir.conf.template
+
+- name: nginx-env
+  literals:
+  - NGINX_ENVSUBST_OUTPUT_DIR=/etc/nginx
+  - DISTRIBUTOR_HOST=distributor.default.svc.cluster.local
+  - ALERT_MANAGER_HOST=alertmanager-headless.default.svc.cluster.local
+  - RULER_HOST=ruler.default.svc.cluster.local
+  - QUERY_FRONTEND_HOST=query-frontend.default.svc.cluster.local
+  - COMPACTOR_HOST=compactor.default.svc.cluster.local

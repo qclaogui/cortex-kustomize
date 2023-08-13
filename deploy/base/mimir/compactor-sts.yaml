@@ -1,0 +1,59 @@
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: compactor
+  labels:
+    app: compactor
+spec:
+  replicas: 1
+  podManagementPolicy: Parallel
+  selector:
+    matchLabels:
+      app: compactor
+  serviceName: compactor
+  template:
+    metadata:
+      labels:
+        app: compactor
+        gossip_ring_member: "true"
+    spec:
+      containers:
+      - name: compactor
+        image: grafana/mimir
+        imagePullPolicy: IfNotPresent
+        env:
+        - name: POD_IP
+          valueFrom:
+            fieldRef:
+              fieldPath: status.podIP
+        args:
+        - -target=compactor
+        - -config.file=/etc/mimir/mimir.yaml
+        - -config.expand-env=true
+        - -memberlist.bind-addr=$(POD_IP)
+        readinessProbe:
+          httpGet:
+            path: /ready
+            port: http-metrics
+          initialDelaySeconds: 60
+        ports:
+        - containerPort: 8080
+          name: http-metrics
+        - containerPort: 9095
+          name: grpc-compactor
+        - containerPort: 7946
+          name: http-memberlist
+        volumeMounts:
+        - mountPath: /etc/mimir
+          name: mimir-config
+        - mountPath: /var/mimir
+          name: runtime-config
+      terminationGracePeriodSeconds: 240
+      volumes:
+      - name: mimir-config
+        secret:
+          secretName: mimir-config
+      - name: runtime-config
+        configMap:
+          name: runtime-config

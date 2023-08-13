@@ -1,0 +1,50 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: query-scheduler
+  labels:
+    app: query-scheduler
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: query-scheduler
+  template:
+    metadata:
+      labels:
+        app: query-scheduler
+    spec:
+      containers:
+      - name: query-scheduler
+        image: grafana/mimir
+        imagePullPolicy: IfNotPresent
+        args:
+        - -target=query-scheduler
+        - -config.file=/etc/mimir/mimir.yaml
+        - -config.expand-env=true
+        - -server.grpc.keepalive.max-connection-age=2562047h
+        - -server.grpc.keepalive.max-connection-age-grace=2562047h
+        readinessProbe:
+          httpGet:
+            path: /ready
+            port: http-metrics
+          initialDelaySeconds: 45
+        ports:
+        - containerPort: 8080
+          name: http-metrics
+        - containerPort: 9095
+          name: grpc-scheduler
+        volumeMounts:
+        - mountPath: /etc/mimir
+          name: mimir-config
+        - mountPath: /var/mimir
+          name: runtime-config
+      terminationGracePeriodSeconds: 180
+      volumes:
+      - name: mimir-config
+        secret:
+          secretName: mimir-config
+      - name: runtime-config
+        configMap:
+          name: runtime-config
