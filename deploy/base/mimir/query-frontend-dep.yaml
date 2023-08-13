@@ -1,0 +1,48 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: query-frontend
+  labels:
+    app: query-frontend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: query-frontend
+  template:
+    metadata:
+      labels:
+        app: query-frontend
+    spec:
+      containers:
+      - name: query-frontend
+        image: grafana/mimir
+        imagePullPolicy: IfNotPresent
+        args:
+        - -target=query-frontend
+        - -config.file=/etc/mimir/mimir.yaml
+        - -config.expand-env=true
+        readinessProbe:
+          httpGet:
+            path: /ready
+            port: http-metrics
+          initialDelaySeconds: 45
+        ports:
+        - containerPort: 8080
+          name: http-metrics
+        - containerPort: 9095
+          name: grpc-frontend
+        volumeMounts:
+        - mountPath: /etc/mimir
+          name: mimir-config
+        - mountPath: /var/mimir
+          name: runtime-config
+      terminationGracePeriodSeconds: 180
+      volumes:
+      - name: mimir-config
+        secret:
+          secretName: mimir-config
+      - name: runtime-config
+        configMap:
+          name: runtime-config

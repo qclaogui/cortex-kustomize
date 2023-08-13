@@ -1,0 +1,48 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: minio
+  labels:
+    app: minio
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: minio
+  template:
+    metadata:
+      labels:
+        app: minio
+      annotations:
+        prometheus.io.scrape: "true"
+        prometheus.io.port: "9000"
+        prometheus.io.path: "/minio/v2/metrics/cluster"
+    spec:
+      containers:
+      - name: minio
+        image: minio/minio
+        command:
+        - sh
+        - -c
+        - |
+          mkdir -p /data/mimir-data /data/mimir-rules /data/mimir-alertmanager && \
+          mkdir -p /data/loki-data /data/loki-rules && \
+          mkdir -p /data/tempo-data  && \
+          mkdir -p /data/pyroscope-data && \
+          minio server /data --console-address ':9001'
+        env:
+        - name: MINIO_PROMETHEUS_AUTH_TYPE
+          value: "public"
+        - name: MINIO_ROOT_USER
+          value: "admin"
+        - name: MINIO_ROOT_PASSWORD
+          value: "admin_password"
+        - name: MINIO_UPDATE
+          value: "off"
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 9000
+          name: http-metrics
+        - containerPort: 9001
+          name: http-console

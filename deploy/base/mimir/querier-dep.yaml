@@ -1,0 +1,57 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: querier
+  labels:
+    app: querier
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: querier
+  template:
+    metadata:
+      labels:
+        app: querier
+        gossip_ring_member: "true"
+    spec:
+      containers:
+      - name: querier
+        image: grafana/mimir
+        imagePullPolicy: IfNotPresent
+        env:
+        - name: POD_IP
+          valueFrom:
+            fieldRef:
+              fieldPath: status.podIP
+        args:
+        - -target=querier
+        - -config.file=/etc/mimir/mimir.yaml
+        - -config.expand-env=true
+        - -memberlist.bind-addr=$(POD_IP)
+        readinessProbe:
+          httpGet:
+            path: /ready
+            port: http-metrics
+          initialDelaySeconds: 45
+        ports:
+        - containerPort: 8080
+          name: http-metrics
+        - containerPort: 9095
+          name: grpc-querier
+        - containerPort: 7946
+          name: http-memberlist
+        volumeMounts:
+        - mountPath: /etc/mimir
+          name: mimir-config
+        - mountPath: /var/mimir
+          name: runtime-config
+      terminationGracePeriodSeconds: 180
+      volumes:
+      - name: mimir-config
+        secret:
+          secretName: mimir-config
+      - name: runtime-config
+        configMap:
+          name: runtime-config

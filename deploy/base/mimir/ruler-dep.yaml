@@ -1,0 +1,61 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ruler
+  labels:
+    app: ruler
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ruler
+  template:
+    metadata:
+      labels:
+        app: ruler
+        gossip_ring_member: "true"
+    spec:
+      containers:
+      - name: ruler
+        image: grafana/mimir
+        imagePullPolicy: IfNotPresent
+        env:
+        - name: POD_IP
+          valueFrom:
+            fieldRef:
+              fieldPath: status.podIP
+        args:
+        - -target=ruler
+        - -config.file=/etc/mimir/mimir.yaml
+        - -config.expand-env=true
+        - -memberlist.bind-addr=$(POD_IP)
+        readinessProbe:
+          httpGet:
+            path: /ready
+            port: http-metrics
+          initialDelaySeconds: 45
+        ports:
+        - containerPort: 8080
+          name: http-metrics
+        - containerPort: 9095
+          name: grpc-ruler
+        - containerPort: 7946
+          name: http-memberlist
+        volumeMounts:
+        - mountPath: /etc/mimir
+          name: mimir-config
+        - mountPath: /var/mimir
+          name: runtime-config
+        - mountPath: /rules
+          name: rule-path
+      terminationGracePeriodSeconds: 180
+      volumes:
+      - name: mimir-config
+        secret:
+          secretName: mimir-config
+      - name: runtime-config
+        configMap:
+          name: runtime-config
+      - name: rule-path
+        emptyDir: {}
