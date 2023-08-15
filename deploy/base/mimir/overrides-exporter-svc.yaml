@@ -1,0 +1,15 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: overrides-exporter
+  labels:
+    app: overrides-exporter
+spec:
+  ports:
+  - port: 8080
+    name: http-metrics
+  - port: 9095
+    name: grpc-overrides
+  selector:
+    app: overrides-exporter

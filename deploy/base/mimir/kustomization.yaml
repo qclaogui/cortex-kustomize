@@ -22,6 +22,10 @@ resources:
 - ingester-headless-svc.yaml
 - ingester-svc.yaml
 
+# Overrides-exporter
+- overrides-exporter-dep.yaml
+- overrides-exporter-svc.yaml
+
 # Querier
 - querier-dep.yaml
 - querier-svc.yaml

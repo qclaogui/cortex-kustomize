@@ -1,0 +1,48 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: overrides-exporter
+  labels:
+    app: overrides-exporter
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: overrides-exporter
+  template:
+    metadata:
+      labels:
+        app: overrides-exporter
+    spec:
+      containers:
+      - name: overrides-exporter
+        image: grafana/mimir
+        imagePullPolicy: IfNotPresent
+        args:
+        - -target=overrides-exporter
+        - -config.file=/etc/mimir/mimir.yaml
+        - -config.expand-env=true
+        readinessProbe:
+          httpGet:
+            path: /ready
+            port: http-metrics
+          initialDelaySeconds: 45
+        ports:
+        - containerPort: 8080
+          name: http-metrics
+        - containerPort: 9095
+          name: grpc-overrides
+        volumeMounts:
+        - mountPath: /etc/mimir
+          name: mimir-config
+        - mountPath: /var/mimir
+          name: runtime-config
+      terminationGracePeriodSeconds: 60
+      volumes:
+      - name: mimir-config
+        secret:
+          secretName: mimir-config
+      - name: runtime-config
+        configMap:
+          name: runtime-config
