@@ -5,6 +5,7 @@ metadata:
   name: gossip-ring-headless
   labels:
     app: gossip-ring
+    prometheus.io/service-monitor: "false"
 spec:
   clusterIP: None
   ports:

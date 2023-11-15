@@ -15,7 +15,7 @@ spec:
       labels:
         app: minio
       annotations:
-        prometheus.io.scrape: "true"
+        prometheus.io.scrape: "false"
         prometheus.io.port: "9000"
         prometheus.io.path: "/minio/v2/metrics/cluster"
     spec:

@@ -5,6 +5,7 @@ metadata:
   name: ingester-headless
   labels:
     app: ingester
+    prometheus.io/service-monitor: "false"
 spec:
   clusterIP: None
   ports:

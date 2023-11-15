@@ -5,6 +5,7 @@ metadata:
   name: alertmanager-headless
   labels:
     app: alertmanager
+    prometheus.io/service-monitor: "false"
 spec:
   clusterIP: None
   publishNotReadyAddresses: true

@@ -5,6 +5,7 @@ metadata:
   name: query-scheduler-headless
   labels:
     app: query-scheduler
+    prometheus.io/service-monitor: "false"
 spec:
   clusterIP: None
   publishNotReadyAddresses: true

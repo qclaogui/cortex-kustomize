@@ -5,6 +5,7 @@ metadata:
   name: store-gateway-headless
   labels:
     app: store-gateway
+    prometheus.io/service-monitor: "false"
 spec:
   clusterIP: None
   ports:
