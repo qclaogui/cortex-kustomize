@@ -19,6 +19,9 @@ spec:
       - name: query-frontend
         image: grafana/mimir
         imagePullPolicy: IfNotPresent
+        envFrom:
+        - secretRef:
+            name: mimir-env
         args:
         - -target=query-frontend
         - -config.file=/etc/mimir/mimir.yaml
@@ -41,8 +44,8 @@ spec:
       terminationGracePeriodSeconds: 180
       volumes:
       - name: mimir-config
-        secret:
-          secretName: mimir-config
+        configMap:
+          name: mimir-config
       - name: runtime-config
         configMap:
           name: runtime-config

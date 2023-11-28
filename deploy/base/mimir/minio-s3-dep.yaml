@@ -26,8 +26,8 @@ spec:
         - sh
         - -c
         - |
-          mkdir -p /data/mimir-data /data/mimir-rules /data/mimir-alertmanager && \
-          mkdir -p /data/loki-data /data/loki-rules && \
+          mkdir -p /data/mimir-blocks /data/mimir-ruler /data/mimir-alertmanager && \
+          mkdir -p /data/loki-data /data/loki-ruler && \
           mkdir -p /data/tempo-data  && \
           mkdir -p /data/pyroscope-data && \
           minio server /data --console-address ':9001'

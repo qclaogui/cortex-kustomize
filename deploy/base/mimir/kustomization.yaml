@@ -3,6 +3,8 @@
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 
+namespace: monitoring-system
+
 resources:
 # Alertmanager
 - alertmanager-sts.yaml
@@ -57,7 +59,7 @@ resources:
 
 images:
 - name: grafana/mimir
-  newTag: 2.9.0
+  newTag: 2.10.4
 - name: minio/minio
   newTag: RELEASE.2023-07-21T21-12-44Z
 - name: nginx
@@ -65,15 +67,18 @@ images:
   newTag: 1.25-alpine
 
 secretGenerator:
-- name: mimir-config
+- name: mimir-env
   files:
-  - configs/mimir.yaml
-  - configs/alertmanager-fallback-config.yaml
+  - mimir.env
 
 configMapGenerator:
 - name: runtime-config
   files:
   - configs/runtime.yaml
+- name: mimir-config
+  files:
+  - configs/mimir.yaml
+  - configs/alertmanager-fallback-config.yaml
 
 - name: nginx-templates
   files:

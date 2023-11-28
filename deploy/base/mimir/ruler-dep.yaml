@@ -20,6 +20,9 @@ spec:
       - name: ruler
         image: grafana/mimir
         imagePullPolicy: IfNotPresent
+        envFrom:
+        - secretRef:
+            name: mimir-env
         env:
         - name: POD_IP
           valueFrom:
@@ -52,8 +55,8 @@ spec:
       terminationGracePeriodSeconds: 180
       volumes:
       - name: mimir-config
-        secret:
-          secretName: mimir-config
+        configMap:
+          name: mimir-config
       - name: runtime-config
         configMap:
           name: runtime-config
