@@ -69,7 +69,7 @@ images:
 secretGenerator:
 - name: mimir-env
   files:
-  - mimir.env
+  - configs/mimir.env
 
 configMapGenerator:
 - name: runtime-config
